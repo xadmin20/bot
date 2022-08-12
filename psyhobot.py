@@ -60,26 +60,7 @@ def callback_worker(call):
         video = open('static/video_1.mp4', 'rb')
         bot.send_video(call.message.chat.id, video, timeout=2)
 
-#     elif call.data == "info":
-#         bot.send_message(call.message.chat.id, f'Info')
-#     elif call.data == "victorina":
-#         game_vic = game_victor.random_line()
-#         print(type(game_vic))
-#         game_start = game_vic.split("|")
-#         print(game_start)
-#         question = game_start[0]
-#         answer = game_start[1].strip("")
-#         msg = bot.send_message(call.message.chat.id, f'Внимание вопрос {question} - {answer}')
-#         bot.register_next_step_handler(msg, victorina, game_vic)
-#     elif call.data == "zapis":
-#         print(f"Zapis {call.message.chat.id}")
-#         bot.send_message(call.message.chat.id, f'Пожалуйста введите удобное '
-#                                                f'для Вас дату записи в формате 01.01. {order.a}')
-#
-#
-# def zapis(message):
-#     msg = order.order.a
-#     bot.send_message(message.chat.id, f'{msg}')
+#  
 
 
 # def start_game(message, rand):
