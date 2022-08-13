@@ -1,5 +1,5 @@
-#version start
-
+# -*- coding: utf-8 -*-
+from mysql.connector import connect, Error
 import random
 import sqlite3
 import telebot
@@ -8,10 +8,14 @@ from keyboa.keyboards import keyboa_maker
 from telebot import types
 from telebot import TeleBot
 import text_file
+import config
+from config import TOKEN
+
+mes_info = ""
+mes_img = ""
 
 
-bot = telebot.TeleBot('1450495246:AAGQxl6uESY-VtdXJI9Uj-pLipCP7sSQfWg')
-
+bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -41,73 +45,51 @@ def callback_worker(call):
         kb_fruits = keyboa_maker(items=button, items_in_row=2)
         bot.send_message(call.message.chat.id, reply_markup=kb_fruits, text=text_file.text_1, parse_mode="html")
     elif call.data == "score":
-        print(call.message.chat.id)
-        bot.send_message(call.message.chat.id, """
-       <b>bold</b>, <strong>bold</strong>
-<i>italic</i>, <em>italic</em>
-<u>underline</u>, <ins>underline</ins>
-<s>strikethrough</s>, <strike>strikethrough</strike>, <del>strikethrough</del>
-<span class="tg-spoiler">spoiler</span>, <tg-spoiler>spoiler</tg-spoiler>
-<b>bold <i>italic bold <s>italic bold strikethrough <span class="tg-spoiler">italic bold strikethrough spoiler</span></s> <u>underline italic bold</u></i> bold</b>
-<a href="http://www.example.com/">inline URL</a>
-<a href="tg://user?id=91124946">inline mention of a user</a>
-<code>inline fixed-width code</code>
-<pre>pre-formatted fixed-width code block</pre>
-<pre><code class="language-python">pre-formatted fixed-width code block written in the Python programming language</code></pre>
-       """, parse_mode="html")
+        if config.is_admin(call.message.chat.id) and config.admin_mode == True:
+            print(call.message.chat.id)
+            msg = bot.send_message(call.message.chat.id, f'Пожалуйста введите текст: ')
+            bot.register_next_step_handler(msg, message_db)
+        else:
+            bot.send_message(call.message.chat.id, "No admin")
     elif call.data == "start_kurs":
         print(call.message.chat.id, call.data)
         video = open('static/video_1.mp4', 'rb')
         bot.send_video(call.message.chat.id, video, timeout=2)
 
-#  
-
-
-# def start_game(message, rand):
-#     global score_game, time_finish
-#     try:
-#         a = int(message.text)
-#         b = rand
-#         print(b)
-#         if a > b:
-#             score_game -= 1
-#             msg = bot.send_message(message.chat.id, f'Down, Ваши очки {score_game}')
-#             bot.register_next_step_handler(msg, start_game, b)
-#         elif a < b:
-#             score_game -= 1
-#             msg = bot.send_message(message.chat.id, f'UP, Ваши очки {score_game}')
-#             bot.register_next_step_handler(msg, start_game, b)
-#         elif a == b:
-#             time_finish = int(time.time())
-#             time_game = time_finish - time_start
-#             print(f"{time_finish} - {time_start} ")
-#             score_game += 5
-#             game_db.db_score_add(message.chat.id, score_game, time_game)
-#             fruits_with_ids = [
-#                 {"Старт": "start"}, {f"Список игр": "list_game"},
-#                 {"Информация": "info"}, {"Score": "score"}, ]
-#             kb_fruits = keyboa_maker(items=fruits_with_ids, items_in_row=1)
-#             textsend = message.chat.first_name + f"Ты выиграл {score_game} за {time_game} секунд, может еще поиграем?"
-#             bot.send_message(chat_id=message.chat.id, reply_markup=kb_fruits, text=textsend)
-#     except:
-#         msg = bot.send_message(message.chat.id, f'Соори, это же не число: {message.text}, введите пожалуйста число!')
-#         bot.register_next_step_handler(msg, start_game, rand)
-
-
-# def victorina(message, game_vic):
-#     print("vic")
-#     game_vic = game_victor.random_line()
-#     game_vic.split("|")
-#     question = game_vic[0]
-#     answer = game_vic[1].strip("")
-#     print(answer)
-#     print(message.text.lower())
-#     if message.text.lower() == answer.lower():
-#         bot.send_message(message.chat.id, f"yes")
-#     else:
-#         msg = bot.send_message(message.chat.id, f'Еще разок')
-#         bot.register_next_step_handler(msg, victorina, game_vic)
 #
+@bot.message_handler(content_types=['photo'])
+def handle_docs_photo(message):
+    try:
+        chat_id = message.chat.id
+        file_info_1 = bot.get_file(message.photo[-1].file_id)
+        bot.send_message(message.chat.id, str(file_info_1))
+        downloaded_file = bot.download_file(file_info_1.file_path)
+
+        src = dir + '\\' + file_info_1.file_path.split('/')[-1]
+        bot.send_message(message.chat.id, src)
+        with open(src, 'wb') as new_file:
+            new_file.write(downloaded_file)
+        print("photo ok")
+    except Exception as e:
+        bot.reply_to(message, e)
+
+
+def message_db(message):
+    global mes_info
+    mes_info = message.text
+    msg = bot.send_message(message.chat.id, f'Пожалуйста отправьте картинку')
+    bot.register_next_step_handler(msg, send_img)
+
+def send_img(message):
+    global mes_img
+    mes_img = message.text
+    bot.send_message(message.chat.id, mes_info)
+    bot.send_photo(message.chat.id, mes_info)
+
+
+
+
+
 
 def zapis_date(message):
     global zap_d
