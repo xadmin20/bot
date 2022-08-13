@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from mysql.connector import connect, Error
-import random
-import sqlite3
 import telebot
-import datetime, time
+import time
 from keyboa.keyboards import keyboa_maker
-from telebot import types
-from telebot import TeleBot
+
 import text_file
 import config
 from config import TOKEN
