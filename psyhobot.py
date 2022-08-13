@@ -4,22 +4,23 @@ import telebot
 import time
 from keyboa.keyboards import keyboa_maker
 
+import admin
 import text_file
 import config
 from config import TOKEN
 
+
 mes_info = ""
 mes_img = ""
-
-
 bot = telebot.TeleBot(TOKEN)
+
 
 @bot.message_handler(commands=['start'])
 def start(message):
     # users = game_db.db_start(message.chat.id)
     fruits_with_ids = [
         {"Старт": "start"}, {"Мои очки": "score"},
-        {"Информация": "info"}, {"Викторина": "victorina"}, {"Запись": "zapis"}]
+        {"Информация": "info"}, {"BAZA": "baza"}, {"Запись": "zapis"}]
     kb_fruits = keyboa_maker(items=fruits_with_ids, items_in_row=2)
     textsend = message.chat.first_name + " Хай :) нажми на кнопку"
     bot.send_message(chat_id=message.chat.id, reply_markup=kb_fruits, text=textsend)
@@ -48,12 +49,18 @@ def callback_worker(call):
             bot.register_next_step_handler(msg, message_db)
         else:
             bot.send_message(call.message.chat.id, "No admin")
+    elif call.data == "baza":
+        if config.is_admin(call.message.chat.id) and config.admin_mode == True:
+            print(call.message.chat.id)
+            bot.send_message(call.message.chat.id, admin.db_created_table_art())
+        else:
+            bot.send_message(call.message.chat.id, "No admin")
     elif call.data == "start_kurs":
         print(call.message.chat.id, call.data)
         video = open('static/video_1.mp4', 'rb')
         bot.send_video(call.message.chat.id, video, timeout=2)
 
-#
+
 @bot.message_handler(content_types=['photo'])
 def handle_docs_photo(message):
     try:
@@ -100,5 +107,8 @@ def zapis_time(message):
 
 
 if __name__ == "__main__":
-    print("Start Bot")
-    bot.polling(none_stop=True, interval=0)
+    try:
+        print("Start Bot")
+        bot.polling(none_stop=True, interval=0)
+    except:
+        print("STOP")

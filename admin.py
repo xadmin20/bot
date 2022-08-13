@@ -3,7 +3,7 @@ import config
 from mysql.connector import connect, Error
 
 
-def db_created_table_art(message):
+def db_created_table_art():
     try:
         with connect(
                 host=config.db_conf["host"],
@@ -17,3 +17,4 @@ def db_created_table_art(message):
                     print(db)
     except Error as e:
         print(e)
+        
