@@ -7,6 +7,7 @@ from keyboa.keyboards import keyboa_maker
 import admin
 import text_file
 import config
+import weather
 from config import TOKEN
 
 
@@ -20,7 +21,7 @@ def start(message):
     # users = game_db.db_start(message.chat.id)
     fruits_with_ids = [
         {"Старт": "start"}, {"Мои очки": "score"},
-        {"Информация": "info"}, {"BAZA": "baza"}, {"Запись": "zapis"}]
+        {"Погода": "weather"}, {"BAZA": "baza"}, {"Запись": "zapis"}]
     kb_fruits = keyboa_maker(items=fruits_with_ids, items_in_row=2)
     textsend = message.chat.first_name + " Хай :) нажми на кнопку"
     bot.send_message(chat_id=message.chat.id, reply_markup=kb_fruits, text=textsend)
@@ -59,6 +60,9 @@ def callback_worker(call):
         print(call.message.chat.id, call.data)
         video = open('static/video_1.mp4', 'rb')
         bot.send_video(call.message.chat.id, video, timeout=2)
+    elif call.data == "weather":
+        print(call.message.chat.id, call.data)
+        bot.send_message(call.message.chat.id, weather.weather())
 
 
 @bot.message_handler(content_types=['photo'])
